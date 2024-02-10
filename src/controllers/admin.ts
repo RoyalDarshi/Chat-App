@@ -1,5 +1,10 @@
 import User from "../modal/user";
 import bcrypt from "bcrypt"
+import path from "node:path";
+
+const sendSignUpFile=(req:any,res:any)=>{
+    res.status(201).sendFile(path.join(process.cwd(),"views","index.html"))
+}
 
 type userReq={
     body:{
@@ -30,5 +35,6 @@ const createUser=(req:userReq,res:any)=>{
 }
 const userController={
     createUser,
+    sendSignUpFile
 }
 export default userController;

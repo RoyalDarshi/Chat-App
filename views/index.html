@@ -24,10 +24,14 @@
     <div class="row justify-content-center">
         <div class="col-md-6 form-container">
             <h2 class="text-center mb-4">Sign Up</h2>
-            <form id="signup-form"   onsubmit="return validateForm()">
+            <div id="signup-form" >
                 <div class="mb-3">
                     <label for="fullName" class="form-label">Full Name</label>
                     <input type="text" class="form-control" id="fullName" name="fullName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" required>
                 </div>
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
@@ -41,28 +45,13 @@
                     <input type="checkbox" class="form-check-input" id="agreeTerms" required>
                     <label class="form-check-label" for="agreeTerms">I agree to the <a href="#">terms</a> and <a href="#">privacy policy</a></label>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                <button onclick="validateForm()" class="btn btn-primary w-100">Sign Up</button>
                 <p class="mt-3 text-center">Already have an account? <a href="#">Log in</a></p>
-            </form>
+            </div>
         </div>
     </div>
 </div>
-
-<script>
-    function validateForm() {
-        var fullname = document.getElementById('fullname').value;
-        var email = document.getElementById('email').value;
-        var password = document.getElementById('password').value;
-
-        if (fullname.trim() === '' || email.trim() === '' || password.trim() === '') {
-            alert('All fields are required');
-            return false;
-        }
-
-        // You can add more sophisticated validation here, such as email format validation
-
-        return true;
-    }
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.3/axios.min.js" integrity="sha512-JWQFV6OCC2o2x8x46YrEeFEQtzoNV++r9im8O8stv91YwHNykzIS2TbvAlFdeH0GVlpnyd79W0ZGmffcRi++Bw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/js/scripts.js"></script>
 </body>
 </html>
