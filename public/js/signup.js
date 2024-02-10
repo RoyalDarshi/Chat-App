@@ -15,7 +15,7 @@ async function validateSignUpForm() {
             mobile:mobile,
             password:password
         }
-        const res=await axios.post("http://localhost:3000/create-user",data)
+        const res=await axios.post(window.location.origin+"/create-user",data)
         alert(res.data.msg);
     }
 }

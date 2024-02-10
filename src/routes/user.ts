@@ -1,16 +1,8 @@
 import {Router} from "express";
+import userController from "../controllers/user";
 
-import userController from "../controllers/admin";
+const userRouter=Router()
 
-const userRouter=Router();
+userRouter.post("/send-message",userController.sendMessage)
 
-userRouter.get("/",userController.sendSignUpPage)
-
-userRouter.get("/login",userController.sendLoginPage)
-
-userRouter.post("/create-user",userController.createUser)
-
-userRouter.post("/login-user",userController.loginUser)
-
-export default userRouter;
-
+export default userRouter

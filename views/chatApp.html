@@ -77,12 +77,14 @@
 <div class=" container-fluid input-container">
     <div class="row justify-content-center"> <!-- Center horizontally -->
         <div class="col-md-8"> <!-- Adjust column width as needed -->
-            <input type="text" class="form-control" placeholder="Type a message...">
+            <input id="msg" type="text" class="form-control" placeholder="Type a message...">
         </div>
         <div class="col-md-2 mt-2">
-            <button class="btn btn-primary w-100">Send</button>
+            <button id="sendMsg" class="btn btn-primary w-100">Send</button>
         </div>
     </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.3/axios.min.js" integrity="sha512-JWQFV6OCC2o2x8x46YrEeFEQtzoNV++r9im8O8stv91YwHNykzIS2TbvAlFdeH0GVlpnyd79W0ZGmffcRi++Bw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/js/chatApp.js"></script>
 </body>
 </html>

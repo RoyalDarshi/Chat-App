@@ -18,7 +18,7 @@ const User=Db.define("user",{
         allowNull: false
     },
     mobile:{
-        type:Sequelize.FLOAT,
+        type:Sequelize.DOUBLE,
         allowNull: false
     },
     password:{

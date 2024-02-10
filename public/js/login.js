@@ -13,6 +13,10 @@ async function validateForm() {
         }
         const res=await axios.post(window.location.origin+"/login-user",data);
         alert(res.data.msg)
+        if(res.data.token){
+            localStorage.setItem("userId",res.data.token)
+            window.location.href="/app"
+        }
     }
 
 }

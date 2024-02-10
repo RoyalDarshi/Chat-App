@@ -1,14 +1,10 @@
 import User from "../modal/user";
 import bcrypt from "bcrypt"
 import path from "node:path";
-import {decode, sign} from "jsonwebtoken"
+import {sign} from "jsonwebtoken"
 
 function createToken(id:string){
     return sign(id, process.env.JWT_SECRET_KEY!);
-}
-
-function decodeToken(token:string){
-    return decode(token);
 }
 
 const sendSignUpPage=(req:any, res:any)=>{
@@ -19,6 +15,9 @@ const sendLoginPage=(req:any,res:any)=>{
     res.status(201).sendFile(path.join(process.cwd(),"views","login.html"))
 }
 
+const sendChatAppPage=(req:any,res:any)=>{
+    res.status(201).sendFile(path.join(process.cwd(),"views","chatApp.html"))
+}
 type createUserReq={
     body:{
         name:string,
@@ -60,7 +59,7 @@ const loginUser=async (req:loginUserReq,res:any)=> {
         }
     })
     if (!user) {
-        return res.status(404).json({msg: "User doesn't Exist"})
+        return res.status(201).json({msg: "User doesn't Exist"})
     }
     const isRightPass = await bcrypt.compare(req.body.password, user.dataValues.password)
     let msg: string
@@ -70,15 +69,16 @@ const loginUser=async (req:loginUserReq,res:any)=> {
         return res.status(201).json({msg:msg,token:token})
     } else {
         msg = "Wrong password!"
-        res.status(401).json({msg:msg})
+        res.status(201).json({msg:msg})
     }
 
 }
 
-const userController={
+const adminController={
     createUser,
     sendSignUpPage,
     sendLoginPage,
-    loginUser
+    loginUser,
+    sendChatAppPage
 }
-export default userController;
+export default adminController;
