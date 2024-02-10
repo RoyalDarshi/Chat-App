@@ -1,6 +1,15 @@
 import User from "../modal/user";
 import bcrypt from "bcrypt"
 import path from "node:path";
+import {decode, sign} from "jsonwebtoken"
+
+function createToken(id:string){
+    return sign(id, process.env.JWT_SECRET_KEY!);
+}
+
+function decodeToken(token:string){
+    return decode(token);
+}
 
 const sendSignUpPage=(req:any, res:any)=>{
     res.status(201).sendFile(path.join(process.cwd(),"views","index.html"))
@@ -10,7 +19,7 @@ const sendLoginPage=(req:any,res:any)=>{
     res.status(201).sendFile(path.join(process.cwd(),"views","login.html"))
 }
 
-type userReq={
+type createUserReq={
     body:{
         name:string,
         email:string,
@@ -19,7 +28,7 @@ type userReq={
 
     }
 }
-const createUser=(req:userReq,res:any)=>{
+const createUser=(req:createUserReq,res:any)=>{
     bcrypt.hash(req.body.password,10,async (err,password)=>{
         const data={
             name:req.body.name,
@@ -37,9 +46,39 @@ const createUser=(req:userReq,res:any)=>{
         res.status(201).json({msg:"User created successfully"});
     })
 }
+
+type loginUserReq = {
+    body:{
+        email:string,
+        password:string
+    }
+}
+const loginUser=async (req:loginUserReq,res:any)=> {
+    const user = await User.findOne({
+        where: {
+            email: req.body.email
+        }
+    })
+    if (!user) {
+        return res.status(404).json({msg: "User doesn't Exist"})
+    }
+    const isRightPass = await bcrypt.compare(req.body.password, user.dataValues.password)
+    let msg: string
+    const token=createToken(user.dataValues.id+"");
+    if (isRightPass) {
+        msg = "User logged in successfully"
+        return res.status(201).json({msg:msg,token:token})
+    } else {
+        msg = "Wrong password!"
+        res.status(401).json({msg:msg})
+    }
+
+}
+
 const userController={
     createUser,
     sendSignUpPage,
-    sendLoginPage
+    sendLoginPage,
+    loginUser
 }
 export default userController;

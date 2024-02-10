@@ -1,4 +1,6 @@
-async function validateForm() {
+document.getElementById("signUpPage").addEventListener("click", validateSignUpForm)
+
+async function validateSignUpForm() {
     const fullName = document.getElementById('fullName').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;

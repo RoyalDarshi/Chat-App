@@ -24,7 +24,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6 form-container">
             <h2 class="text-center mb-4">Login</h2>
-            <form id="login-form" method="post" action="login.php" onsubmit="return validateForm()">
+            <div id="login-form" >
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
                     <input type="email" class="form-control" id="email" name="email" required>
@@ -33,29 +33,15 @@
                     <label for="password" class="form-label">Password</label>
                     <input type="password" class="form-control" id="password" name="password" required>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Login</button>
+                <button id="loginPage" class="btn btn-primary w-100">Login</button>
                 <div class="text-center mt-3">
                     <p>Don't have an account? <a href="http://localhost:3000">Sign up</a></p>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
-
-<script>
-    function validateForm() {
-        var email = document.getElementById('email').value;
-        var password = document.getElementById('password').value;
-
-        if (email.trim() === '' || password.trim() === '') {
-            alert('Please enter both email and password');
-            return false;
-        }
-
-        // You can add more sophisticated validation here, such as email format validation
-
-        return true;
-    }
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.3/axios.min.js" integrity="sha512-JWQFV6OCC2o2x8x46YrEeFEQtzoNV++r9im8O8stv91YwHNykzIS2TbvAlFdeH0GVlpnyd79W0ZGmffcRi++Bw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/js/login.js"></script>
 </body>
 </html>
