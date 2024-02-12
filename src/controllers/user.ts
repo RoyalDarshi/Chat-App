@@ -1,5 +1,6 @@
 import {decode} from "jsonwebtoken";
 import Message from "../modal/message";
+import {Op} from "sequelize";
 
 type sendMessageReq ={
     body:{
@@ -22,13 +23,17 @@ const sendMessage=async (req:sendMessageReq,res:any)=>{
 }
 type getMessageReq={
     query:{
-        id:string
+        id:string,
+        lastMessageId:number
     }
 }
 const getMessage=async (req:getMessageReq,res:any)=>{
     try {
         const id=decode(req.query.id);
-        const data=await Message.findAll({where:{userId:id}});
+        const data=await Message.findAll({where:
+                {userId:id,id:{
+                    [Op.gt]:req.query.lastMessageId
+                    }}});
         res.status(201).json(data)
     }
     catch (e) {

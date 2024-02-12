@@ -7,20 +7,37 @@ async function sendMessage(){
     }
     if(data.message.trim()!==""){
         const res=await axios.post(window.location.origin+"/user/send-message",data)
-        createMessage([{message:message.value}])
     }
     message.value="";
 }
 
-document.addEventListener("DOMContentLoaded", getMessage)
+document.addEventListener("DOMContentLoaded", async ()=>{
+    await createMessage(getLastMsg())
+})
 
-setInterval(getMessage,1000)
+setInterval(async ()=>{
+        await getMessage(getLastMsgId())
+},1000)
 
-async function getMessage(){
+function getLastMsg(){
+    return JSON.parse(localStorage.getItem("lastMsg"))||[];
+}
+
+function getLastMsgId(){
+    const msg=getLastMsg();
+    if(msg.length>0){
+        return msg[msg.length-1].id;
+    }
+    return 0;
+}
+async function getMessage(lastMsgId){
     const id=localStorage.getItem("userId")
-    const res=await axios.get(window.location.origin+"/user/get-message?id="+id);
-    document.getElementById("msgContainer").innerHTML="";
-    createMessage(res.data)
+    const res=await axios.get(window.location.origin+"/user/get-message?"+"lastMessageId="+lastMsgId+"&&id="+id);
+    if(res.data.length>0){
+        const msg=[...getLastMsg(),...res.data]
+        localStorage.setItem("lastMsg",JSON.stringify(msg.slice(-10)))
+        createMessage(res.data)
+    }
 }
 
 function createMessage(msg){
