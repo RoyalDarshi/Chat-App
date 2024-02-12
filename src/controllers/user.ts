@@ -17,12 +17,28 @@ const sendMessage=async (req:sendMessageReq,res:any)=>{
         res.status(201).json({msg:"Message created successfully"})
     }
     catch (e) {
-        console.log(e)
+        console.error(e)
+    }
+}
+type getMessageReq={
+    query:{
+        id:string
+    }
+}
+const getMessage=async (req:getMessageReq,res:any)=>{
+    try {
+        const id=decode(req.query.id);
+        const data=await Message.findAll({where:{userId:id}});
+        res.status(201).json(data)
+    }
+    catch (e) {
+        console.error(e)
     }
 }
 
 const userController={
-    sendMessage
+    sendMessage,
+    getMessage
 }
 
 export default userController;
