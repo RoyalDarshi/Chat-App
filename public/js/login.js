@@ -15,8 +15,9 @@ async function validateForm() {
         alert(res.data.msg)
         if(res.data.token){
             localStorage.setItem("userId",res.data.token)
-            await axios.get(window.location.origin+"/user/get-message?"+"lastMessageId=0&&id="+res.data.token);
+            const msg=await axios.get(window.location.origin+"/user/get-message?"+"lastMessageId=0&&id="+res.data.token);
             window.location.href="/app"
+            localStorage.setItem("lastMsg",JSON.stringify(msg.data))
         }
     }
 

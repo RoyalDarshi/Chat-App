@@ -7,6 +7,7 @@ import adminRouter from "./routes/admin";
 import User from "./modal/user";
 import Message from "./modal/message";
 import userRouter from "./routes/user";
+import Group from "./modal/group";
 
 const app=express();
 
@@ -23,6 +24,12 @@ app.use("/user",userRouter)
 
 Message.belongsTo(User,{onDelete:"CASCADE",constraints:true});
 User.hasMany(Message);
+
+User.belongsToMany(Group,{through:"user_group"});
+Group.belongsToMany(User,{through:"user_group"});
+
+Message.belongsTo(Group,{onDelete:"CASCADE",constraints:true})
+Group.hasMany(Message);
 
 Db.sync({force:false}).then(() =>{
     app.listen(process.env.PORT_NUMBER);
