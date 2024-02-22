@@ -16,10 +16,6 @@ const Group=Db.define("group",{
     createdBy:{
         type:Sequelize.STRING,
         allowNull:false
-    },
-    admin:{
-        type:Sequelize.INTEGER,
-        allowNull:false
     }
 })
 

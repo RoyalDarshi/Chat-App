@@ -8,6 +8,8 @@ import User from "./modal/user";
 import Message from "./modal/message";
 import userRouter from "./routes/user";
 import Group from "./modal/group";
+import Admin from "./modal/admin";
+import User_Group from "./modal/admin";
 
 const app=express();
 
@@ -25,8 +27,8 @@ app.use("/user",userRouter)
 Message.belongsTo(User,{onDelete:"CASCADE",constraints:true});
 User.hasMany(Message);
 
-User.belongsToMany(Group,{through:"user_group"});
-Group.belongsToMany(User,{through:"user_group"});
+User.belongsToMany(Group,{through:User_Group});
+Group.belongsToMany(User,{through:User_Group});
 
 Message.belongsTo(Group,{onDelete:"CASCADE",constraints:true})
 Group.hasMany(Message);

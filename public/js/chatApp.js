@@ -3,10 +3,11 @@ async function sendMessage(){
     const message=document.getElementById("msg");
     const data={
         id:localStorage.getItem("userId"),
-        message:message.value
+        message:message.value,
+        groupId:localStorage.getItem("groupId")
     }
     if(data.message.trim()!==""){
-        const res=await axios.post(window.location.origin+"/user/send-message",data)
+        const res=await axios.post(window.location.origin+"/user/send-group-msg",data)
     }
     message.value="";
 }
@@ -17,9 +18,9 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 })
 
 setInterval(async ()=>{
-        await functions[0]()
+        await functions()
 },1000)
-const functions =[()=>getMessage(getLastMsgId())];
+let functions =()=>getMessage(getLastMsgId());
 
 function getLastMsg(){
     return JSON.parse(localStorage.getItem("lastMsg"))||[];
@@ -79,7 +80,13 @@ function addGroup(groups) {
         li.className="list-group-item";
         li.innerHTML=`<a id="group${group.id}" class="btn btn-success w-100 text-lg-start">${group.name}</a>`
         groupContainer.appendChild(li)
-        document.getElementById("group"+group.id).addEventListener("click",()=>getGroupMsg(group.id) )
+        document.getElementById("group"+group.id).addEventListener("click",async ()=>{
+            localStorage.setItem("groupId",group.id)
+            document.getElementById("chatContainer").classList.remove("visually-hidden")
+            document.getElementById("msgSender").classList.remove("visually-hidden")
+            functions=()=>getGroupMsg(group.id)
+            //await getGroupMsg(group.id)
+        } )
     }
 }
 
@@ -90,3 +97,97 @@ async function getGroupMsg(id){
     createMessage(msg.data)
 }
 
+let members;
+let admin;
+
+document.getElementById("groupInfo").addEventListener("click",getGroupMember)
+
+async function getGroupMember(){
+    const groupId=localStorage.getItem("groupId");
+    const userId=localStorage.getItem("userId")
+    members= await axios.get(window.location.origin+"/user/group-member/"+groupId)
+    admin=await axios.get(window.location.origin+"/user/group-admin?userId="+userId+"&groupId="+groupId)
+    members=members.data;
+    admin=admin.data
+    renderUsers(members);
+}
+
+// Render user table
+function renderUsers(members) {
+    const tBody=document.getElementById("userTableBody")
+    tBody.innerHTML=""
+    for(const member of members) {
+        const tr=document.createElement("tr")
+        tr.id="groupMember"+member.id
+        tr.innerHTML=`
+            <td id="memberName${member.id}">${member.name}</td>
+            <td><button id="removeAdmin${member.id}" class="btn btn-danger visually-hidden" onclick=removeMember(${member.id})>Remove</button></td>
+            <td><button id="makeAdminBtn${member.id}" class="btn btn-primary visually-hidden" onclick="makeAdmin(${member.id})">Make Admin</button></td>
+            <td><button id="adminBtn${member.id}" class="btn btn-success visually-hidden">Admin</button></td>
+            <td><button id="removeAdminBtn${member.id}" class="btn btn-success visually-hidden" onclick="removeAdmin(${member.id})">Remove Admin</button></td>
+        `
+        tBody.appendChild(tr);
+        if(member.user_group.isAdmin){
+            document.getElementById("adminBtn"+member.id).classList.remove("visually-hidden")
+        }
+        if(admin.id===member.id){
+            document.getElementById("memberName"+member.id).innerText="You";
+            document.getElementById("removeAdmin"+member.id).classList.remove("visually-hidden")
+        }
+        if(admin.isAdmin){
+            if(!member.user_group.isAdmin){
+                document.getElementById("makeAdminBtn"+member.id).classList.remove("visually-hidden")
+            }
+            else{
+                document.getElementById("removeAdminBtn"+member.id).classList.remove("visually-hidden")
+            }
+        }
+        else{
+            document.getElementById("addUser").classList.add("visually-hidden")
+        }
+
+    }
+}
+
+async function removeMember(userId){
+    const data={
+        groupId:localStorage.getItem("groupId"),
+        userId:userId
+    }
+    await axios.post(window.location.origin+"/user/remove-user",data);
+    const tBody=document.getElementById("userTableBody")
+    const member=document.getElementById("groupMember"+userId)
+    tBody.removeChild(member)
+}
+
+document.getElementById("addUserBtn").addEventListener("click", addUser)
+
+async function addUser(){
+    const email=document.getElementById("addUserEmail").value;
+    const data={
+        email:email,
+        groupId:localStorage.getItem("groupId")
+    }
+    const msg=await axios.post(window.location.origin+"/user/add-user",data)
+    alert(msg.data.msg)
+}
+
+async function makeAdmin(id){
+    const data={userId:id,groupId:localStorage.getItem("groupId")}
+    await axios.post(window.location.origin+"/user/make-admin",data)
+    document.getElementById("makeAdminBtn"+id).classList.add("visually-hidden")
+    document.getElementById("adminBtn"+id).classList.remove("visually-hidden")
+    document.getElementById("removeAdminBtn"+id).classList.remove("visually-hidden")
+}
+async function removeAdmin(id){
+    const data={userId:id,groupId:localStorage.getItem("groupId")}
+    await axios.post(window.location.origin+"/user/remove-admin",data)
+    if(admin.id===id&&admin.isAdmin){
+        admin.isAdmin=false;
+        window.location.href="/app"
+    }else {
+        document.getElementById("makeAdminBtn"+id).classList.remove("visually-hidden")
+        document.getElementById("adminBtn"+id).classList.add("visually-hidden")
+        document.getElementById("removeAdminBtn"+id).classList.add("visually-hidden")
+    }
+}
