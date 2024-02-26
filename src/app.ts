@@ -10,9 +10,19 @@ import userRouter from "./routes/user";
 import Group from "./modal/group";
 import Admin from "./modal/admin";
 import User_Group from "./modal/admin";
+import {Server} from "socket.io"
+import {createServer} from "node:http";
 
 const app=express();
 
+const server=createServer(app)
+
+const io=new Server(server);
+io.on("connection",(socket)=>{
+    socket.on('send-message', room => {
+        io.emit('receive-message', room);
+    });
+})
 app.use(cors({
     origin:"128.0.0.1",
 
@@ -34,5 +44,5 @@ Message.belongsTo(Group,{onDelete:"CASCADE",constraints:true})
 Group.hasMany(Message);
 
 Db.sync({force:false}).then(() =>{
-    app.listen(process.env.PORT_NUMBER);
+    server.listen(process.env.PORT_NUMBER);
 })

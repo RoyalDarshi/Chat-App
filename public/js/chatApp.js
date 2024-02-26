@@ -1,3 +1,4 @@
+const socket=io();
 document.getElementById("sendMsg").addEventListener("click",sendMessage)
 async function sendMessage(){
     const message=document.getElementById("msg");
@@ -8,6 +9,9 @@ async function sendMessage(){
     }
     if(data.message.trim()!==""){
         const res=await axios.post(window.location.origin+"/user/send-group-msg",data)
+        await getGroupMsg(data.groupId)
+        socket.emit('send-message', data.groupId);
+
     }
     message.value="";
 }
@@ -17,9 +21,9 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     await getGroup();
 })
 
-setInterval(async ()=>{
+/*setInterval(async ()=>{
         await functions()
-},1000)
+},1000)*/
 let functions =()=>getMessage(getLastMsgId());
 
 function getLastMsg(){
@@ -78,7 +82,7 @@ function addGroup(groups) {
     for (const group of groups) {
         const li=document.createElement("li");
         li.className="list-group-item";
-        li.innerHTML=`<a id="group${group.id}" class="btn btn-success w-100 text-lg-start">${group.name}</a>`
+        li.innerHTML=`<a id="group${group.id}" onclick=${getGroupMsg(group.id)} class="btn btn-success w-100 text-lg-start">${group.name}</a>`
         groupContainer.appendChild(li)
         document.getElementById("group"+group.id).addEventListener("click",async ()=>{
             localStorage.setItem("groupId",group.id)
@@ -95,6 +99,15 @@ async function getGroupMsg(id){
     const msgContainer=document.getElementById("msgContainer")
     msgContainer.innerHTML=""
     createMessage(msg.data)
+    socket.on('receive-message', async (group) => {
+        if(group === id){
+            const msg=await axios.get(window.location.origin+"/user/get-group-msg?groupId="+id);
+            const msgContainer=document.getElementById("msgContainer")
+            msgContainer.innerHTML=""
+            createMessage(msg.data)
+        }
+    })
+
 }
 
 let members;
