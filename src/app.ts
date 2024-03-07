@@ -12,7 +12,8 @@ import Admin from "./modal/admin";
 import User_Group from "./modal/admin";
 import {Server} from "socket.io"
 import {createServer} from "node:http";
-
+import {moveMessagesToArchive} from "./services/messageService";
+moveMessagesToArchive()
 const app=express();
 
 const server=createServer(app)
@@ -23,6 +24,7 @@ io.on("connection",(socket)=>{
         io.emit('receive-message', room);
     });
 })
+
 app.use(cors({
     origin:"128.0.0.1",
 
