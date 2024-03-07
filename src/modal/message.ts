@@ -10,8 +10,10 @@ const Message=Db.define("message",{
         unique:true
     },
     message:{
-        type:Sequelize.STRING,
-        allowNull: false
+        type:Sequelize.STRING
+    },
+    link:{
+        type:Sequelize.STRING
     }
 })
 

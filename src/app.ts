@@ -27,6 +27,7 @@ app.use(cors({
     origin:"128.0.0.1",
 
 }))
+app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(express.static("public"))
 

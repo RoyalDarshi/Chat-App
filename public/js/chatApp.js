@@ -2,10 +2,14 @@ const socket=io();
 document.getElementById("sendMsg").addEventListener("click",sendMessage)
 async function sendMessage(){
     const message=document.getElementById("msg");
+    const image=document.getElementById("file");
+    const file = image.files[0]
+    console.log(file)
     const data={
-        id:localStorage.getItem("userId"),
+        userId:localStorage.getItem("userId"),
         message:message.value,
-        groupId:localStorage.getItem("groupId")
+        groupId:localStorage.getItem("groupId"),
+        image:file
     }
     if(data.message.trim()!==""){
         const res=await axios.post(window.location.origin+"/user/send-group-msg",data)
@@ -13,7 +17,22 @@ async function sendMessage(){
         socket.emit('send-message', data.groupId);
 
     }
+    else if(file){
+        const formData=new FormData();
+        formData.append('file',file)
+        formData.append('userId',data.userId)
+        formData.append('groupId',data.groupId)
+        console.log(formData)
+        const res=await axios.post(window.location.origin+"/user/send-image",formData,{
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }})
+        console.log(res)
+        await getGroupMsg(data.groupId)
+        socket.emit('send-message', data.groupId);
+    }
     message.value="";
+    image.value="";
 }
 
 document.addEventListener("DOMContentLoaded", async ()=>{
@@ -48,12 +67,21 @@ async function getMessage(lastMsgId){
 }
 
 function createMessage(msg){
+    console.log(msg)
     const msgContainer=document.getElementById("msgContainer");
     for (const msgElement of msg) {
-        const div=document.createElement("div");
-        div.innerText=msgElement.message;
-        div.className="message sender";
-        msgContainer.appendChild(div);
+        if(msgElement.link){
+            const div=document.createElement("div");
+            div.innerHTML=`
+                <a class="btn link-success" href=${msgElement.link}>${msgElement.user.name}: Download</a>
+            `
+            msgContainer.appendChild(div);
+        }else{
+            const div=document.createElement("div");
+            div.innerText=msgElement.user.name+": "+msgElement.message;
+            div.className="message sender";
+            msgContainer.appendChild(div);
+        }
     }
 }
 
@@ -154,6 +182,7 @@ function renderUsers(members) {
             else{
                 document.getElementById("removeAdminBtn"+member.id).classList.remove("visually-hidden")
             }
+            document.getElementById("removeAdmin"+member.id).classList.remove("visually-hidden")
         }
         else{
             document.getElementById("addUser").classList.add("visually-hidden")

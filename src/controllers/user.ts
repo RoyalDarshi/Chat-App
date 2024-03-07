@@ -5,6 +5,8 @@ import User from "../modal/user";
 import Group from "../modal/group";
 import Admin from "../modal/admin";
 import User_Group from "../modal/admin";
+import {S3} from "aws-sdk"
+import * as fs from "fs";
 
 type sendMessageReq ={
     body:{
@@ -91,9 +93,16 @@ type groupMsgReq={
 }
 const getGroupMsg=async (req:groupMsgReq,res:any)=>{
     const groupId=req.query.groupId;
-    const group=await Group.findOne({where:{id:groupId},include:Message})
+    const msg=await Message.findAll({
+        where: { groupId: groupId }, // Filter by group ID
+        include: [{
+            model: User, // Include the User model
+            attributes: ['name'] // Specify which user attributes you want to retrieve
+        }]
+    })
+    //const group=await Group.findOne({where:{id:groupId},include:Message})
     //@ts-ignore
-    res.status(201).json(group.messages)
+    res.status(201).json(msg)
 }
 type sendGroupMessageReq={
     body:{
@@ -108,6 +117,7 @@ const sendGroupMessage = async (req:sendGroupMessageReq,res:any)=>{
         groupId:req.body.groupId,
         message: req.body.message
     }
+    console.log(data)
     const msg=await Message.create(data);
     res.status(201).json({msg:"message sent successfully",data:msg})
 }
@@ -228,6 +238,40 @@ const removeAdmin=async (req:makeAdminReq,res:any)=>{
         res.status(501).json({msg:"Something went wrong removing user from group admin!"})
     }
 }
+type sendImageReq={
+    body:{
+        userId:string,
+        groupId:number
+    },
+    file:any,
+    params:any
+}
+const sendImage=(req:sendImageReq,res:any)=>{
+    const userId=decode(req.body.userId);
+    const groupId=req.body.groupId
+    const s3=new S3({
+        accessKeyId: process.env.IAM_USER_KEY,
+        secretAccessKey: process.env.IAM_USER_SECRET_KEY
+    })
+    const uploadParams = {
+        Bucket: process.env.BUCKET_NAME!,
+        Key: `image${groupId}-${new Date()}.jpg`,
+        Body: req.file.buffer
+    };
+
+// Upload image to S3
+    s3.upload(uploadParams, async (err:any, data:any) => {
+        if (err) {
+            console.log(err)
+            res.status(500).json({err:"something went wrong"})
+        } else {
+            console.log(data)
+           const msg= await Message.create({link:data.Location,userId:userId,groupId:groupId})
+            console.log(msg)
+            res.status(201).json({msg:"Image uploaded successfully. Image URL:",url:data.Location})
+        }
+    });
+}
 
 const userController={
     sendMessage,
@@ -241,7 +285,8 @@ const userController={
     removeUserFromGroup,
     isGroupAdmin,
     makeAdmin,
-    removeAdmin
+    removeAdmin,
+    sendImage
 }
 
 export default userController;
